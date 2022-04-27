@@ -1,0 +1,34 @@
+server:
+  port: 8888
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource:
+      db1:
+        driver-class-name: com.mysql.jdbc.Driver
+        password: 123456
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://127.0.0.1:3306/order_db_1?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        username: root
+      db2:
+        driver-class-name: com.mysql.jdbc.Driver
+        password: 123456
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://127.0.0.1:3306/order_db_2?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        username: root
+      names: db1,db2
+    props:
+      sql:
+        show: true
+    sharding:
+      tables:
+        orders:
+          actual-data-nodes: db$->{1..2}.orders_$->{1..2}
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          table-strategy:
+            inline:
+              algorithm-expression: orders_$->{id % 2+1}
+              sharding-column: id
